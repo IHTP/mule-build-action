@@ -1,0 +1,25 @@
+{
+  "name": "mule-build-action",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build": "ncc build src/action.js -o dist",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/IHTP/mule-build-action.git"
+  },
+  "author": "Faisal Khanani",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/IHTP/mule-build-action/issues"
+  },
+  "homepage": "https://github.com/IHTP/mule-build-action#readme",
+  "dependencies": {
+    "@actions/core": "^1.2.6",
+    "@actions/github": "^4.0.0",
+    "@vercel/ncc": "^0.28.0"
+  }
+}
