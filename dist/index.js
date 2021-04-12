@@ -5894,24 +5894,130 @@ function wrappy (fn, cb) {
 
 const core = __nccwpck_require__(186);
 const github = __nccwpck_require__(438);
+const cp = __nccwpck_require__(129);
+const util = __nccwpck_require__(669);
+const fs = __nccwpck_require__(747);
+const exec = util.promisify(cp.exec);
 
-async function run(){
-    const GITHUB_TOKEN = core.getInput('GITHUB_TOKEN');
-    const octokit = github.getOctokit(GITHUB_TOKEN);
 
-    const { context = {} } = github;
-    const { pull_request } = context.payload;
+let artifactInfo = {};
+let buildArgs = {};
+let deployArgs = {};
 
-    await octokit.issues.createComment({
-        ... context.repo,
-        issue_number: pull_request.number,
-        body: `Thank you submitting a pull request! We will try to review as soon as we can`,
-      });
-      Parameters
+async function main() {
+  const GITHUB_TOKEN = core.getInput('GITHUB_TOKEN');
+  buildArgs = parseJSON(core.getInput('buildArgs'));
+  deployArgs = parseJSON(core.getInput('deployArgs'));
 
+  if (!deployArgs && !buildArgs) return;
+
+  const octokit = github.getOctokit(GITHUB_TOKEN);
+  const { context = {} } = github;
+  const { pull_request, respository } = context.payload;
+
+  try {
+    if (await releaseExists(octokit, context)) {
+      console.log("Cancelling the subsequent step. ${buildArgs.release_tag} already exists!");
+      return;
+    }
+    if (await buildPackage()) {
+      if (await createRelease(octokit, context)) {
+        await uploadToCloudHub();
+      }
+    }
+    console.log("action executed successfully.");
+    return true;
+  }
+  catch (error) {
+    console.error(error);
+    return;
+  }
 }
 
-run();
+main();
+
+
+async function releaseExists(octokit, context) {
+  if (buildArgs.release_tag) {
+    try {
+      await octokit.repos.getReleaseByTag({
+        ...context.repo,
+        tag: buildArgs.release_tag
+      });
+      console.log("Release exist!");
+
+    }
+    catch (error) {
+      console.error(error);
+      if (error.status == 404) return false;
+    }
+  }
+  return true;
+}
+
+async function buildPackage() {
+  console.log("Building project artifact ...");
+  const build = await exec('mvn -B package --file pom.xml');
+  console.log('Build logs', build.stdout);
+  return true;
+}
+
+async function createRelease(octokit, context) {
+
+  const response = await octokit.repos.createRelease({
+    ...context.repo,
+    tag_name: buildArgs.release_tag,
+    name: "Release " + buildArgs.release_tag,
+    draft: false,
+    prerelease: true
+  });
+
+  console.log(response.stdout);
+  return uploadReleaseAsset(octokit, context, response.data);
+}
+
+async function uploadReleaseAsset(octokit, context, release) {
+  artifactInfo = parseJSON(await getArtifactInfo());
+
+    await octokit.repos.uploadReleaseAsset({
+      ...context.repo,
+      release_id: release.id,
+      origin: release.upload_url,
+      name: artifactInfo.name,
+      data: fs.readFileSync(artifactInfo.path)
+    });
+    return true;
+}
+
+async function uploadToCloudHub() {
+  deployArgs.cloudhub_apps.forEach(app => {
+    const cmd = "anypoint-cli --username=" + app.client_id + " --password=" + app.client_secret + " --environment=" + app.env + " runtime-mgr cloudhub-application modify " + app + artifactInfo.path;
+    exec(cmd);
+    console.log(app.env + " updated successfully.");
+  });
+  return true;
+}
+
+async function getArtifactInfo() {
+  var asset_name = await exec('cd target/ && ls *.jar | head -1');
+  asset_name = asset_name.stdout.replace(/\r?\n|\r/g, "");
+  const artifactInfo = JSON.stringify({ name: asset_name, path: "target/" + asset_name });
+  console.log(artifactInfo);
+  return artifactInfo;
+}
+
+function parseJSON(string) {
+  try {
+    var json = JSON.parse(string);
+    return json;
+  }
+  catch (error) {
+    console.error(error);
+  }
+  return null;
+}
+
+
 
 /***/ }),
 
@@ -5928,6 +6034,14 @@ module.exports = eval("require")("encoding");
 
 "use strict";
 module.exports = require("assert");;
+
+/***/ }),
+
+/***/ 129:
+/***/ ((module) => {
+
+"use strict";
+module.exports = require("child_process");;
 
 /***/ }),
 

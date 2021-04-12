@@ -44,7 +44,7 @@ main();
 
 
 async function releaseExists(octokit, context) {
-  if (tag_name) {
+  if (buildArgs.release_tag) {
     try {
       await octokit.repos.getReleaseByTag({
         ...context.repo,
@@ -83,23 +83,22 @@ async function createRelease(octokit, context) {
 }
 
 async function uploadReleaseAsset(octokit, context, release) {
-  const artifactInfo = parseJSON(await getArtifactInfo());
+  artifactInfo = parseJSON(await getArtifactInfo());
 
-  return {
-    octokit.repos.uploadReleaseAsset({
+    await octokit.repos.uploadReleaseAsset({
       ...context.repo,
       release_id: release.id,
       origin: release.upload_url,
       name: artifactInfo.name,
       data: fs.readFileSync(artifactInfo.path)
-    })
-  };
+    });
+    return true;
 }
 
 async function uploadToCloudHub() {
   deployArgs.cloudhub_apps.forEach(app => {
     const cmd = "anypoint-cli --username=" + app.client_id + " --password=" + app.client_secret + " --environment=" + app.env + " runtime-mgr cloudhub-application modify " + app + artifactInfo.path;
-    await exec(cmd);
+    exec(cmd);
     console.log(app.env + " updated successfully.");
   });
   return true;
