@@ -26,8 +26,8 @@ async function main() {
       return true;
     }
     catch (error) {
-      core.setFailed(error.message)
       console.log(error);
+      core.setFailed(error.message)
       return;
     }  
 }
@@ -55,7 +55,7 @@ async function buildPackage() {
     console.log("Building project artifact ...");
     const build = await exec('mvn -B package --file pom.xml');
     console.log('Build logs ', build.stdout);
-    return build;
+    return true;
   }
 
   async function createRelease(octokit, context, release_tag) {
