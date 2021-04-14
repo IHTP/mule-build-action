@@ -4,6 +4,7 @@ const cp = require('child_process');
 const util = require('util');
 const fs = require('fs');
 const exec = util.promisify(cp.exec);
+const maven = require('./maven');
 
 async function main() {
   const GITHUB_TOKEN = core.getInput('GITHUB_TOKEN');
@@ -20,7 +21,7 @@ async function main() {
       core.setFailed("Cancelling the subsequent step(s). " + buildArgs.release_tag + " already exists!")
       return;
     }
-    if (await buildPackage(testArgs)) {
+    if (await maven.build(testArgs, buildArgs.mavenSettings)) {
       await createRelease(octokit, context, buildArgs.release_tag);
     }
     console.log("action executed successfully.");
@@ -49,20 +50,6 @@ async function releaseExists(octokit, context, release_tag) {
       else throw error;
     }
   }
-  return true;
-}
-
-async function buildPackage(testArgs) {
-  console.log("Building project artifact ...");
-
-  var build_command = 'mvn -B package --file pom.xml ';
-  if (testArgs) {
-    for (const key in testArgs) {
-      build_command += "-D" + key + "=" + testArgs[key] + " "
-    }
-  }
-  const build = await exec(build_command);
-  console.log('Build logs ', build.stdout);
   return true;
 }
 
