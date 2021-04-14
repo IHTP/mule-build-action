@@ -4,6 +4,10 @@ var fs = require('fs');
 var os = require('os');
 var DOMParser = require('xmldom').DOMParser;
 var XMLSerializer = require('xmldom').XMLSerializer;
+const cp = require('child_process');
+const util = require('util');
+const exec = util.promisify(cp.exec);
+
 
 function getSettingsTemplate() {
     core.info("opening settings template");
