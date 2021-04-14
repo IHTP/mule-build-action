@@ -8437,6 +8437,10 @@ var fs = __nccwpck_require__(5747);
 var os = __nccwpck_require__(2087);
 var DOMParser = __nccwpck_require__(7286)/* .DOMParser */ .a;
 var XMLSerializer = __nccwpck_require__(7286).XMLSerializer;
+const cp = __nccwpck_require__(3129);
+const util = __nccwpck_require__(1669);
+const exec = util.promisify(cp.exec);
+
 
 function getSettingsTemplate() {
     core.info("opening settings template");
@@ -8616,7 +8620,7 @@ function updatePluginGroups(templateXml, pluginGroupsInput) {
 function generateMavenSettings(mavenSettings) {
 
     var templateXml = getSettingsTemplate();
-
+    console.log('start writing maven settings file at .m2 directory.');
     updateServers(templateXml, JSON.stringify(mavenSettings.servers));
     updateMirrors(templateXml, JSON.stringify(mavenSettings.mirrors));
     updateRepositories(templateXml, JSON.stringify(mavenSettings.repositories));
@@ -8626,6 +8630,7 @@ function generateMavenSettings(mavenSettings) {
 
     var settingsPath = path.join(os.homedir(), '.m2', 'settings.xml');
     writeSettings(settingsPath, templateXml);
+    console.log('end writing maven settings file at .m2 directory.');
 }
 
 async function build(testArgs, mavenSettings) {
