@@ -13,9 +13,6 @@ inputs:
     description: 'Json object'
     required: false
     default: "{}"    
-env:
-  mulesoft_nexus_user:
-    required: false  
 
 runs:
   using: 'node12'
