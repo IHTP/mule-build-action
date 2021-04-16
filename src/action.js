@@ -10,13 +10,14 @@ async function main() {
   const release_tag=core.getInput('release-tag');
   if (!release_tag) return;
 
-  const GITHUB_TOKEN = core.getInput('github-token');
   const test_args = JSON.parse(core.getInput('test-args'));
+  const GITHUB_TOKEN = process.env.github_token;
   const MULESOFT_NEXUS_USER = process.env.mulesoft_nexus_user;
   const MULESOFT_NEXUS_PASSWORD = process.env.mulesoft_nexus_password;
   const octokit = github.getOctokit(GITHUB_TOKEN);
   const { context = {} } = github;
 
+  core.info('github token: ' + GITHUB_TOKEN);
   core.info('nexus user: ' + MULESOFT_NEXUS_USER);
   core.info('nexus pw: ' + MULESOFT_NEXUS_PASSWORD);
 
