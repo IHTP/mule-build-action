@@ -17,8 +17,8 @@ async function main() {
   const octokit = github.getOctokit(GITHUB_TOKEN);
   const { context = {} } = github;
 
-  core.info('nexus user: ' + mulesoft_nexus_user);
-  core.info('nexus pw: ' + mulesoft_nexus_password);
+  core.info('nexus user: ' + MULESOFT_NEXUS_USER);
+  core.info('nexus pw: ' + MULESOFT_NEXUS_PASSWORD);
 
   try {
     if (await releaseExists(octokit, context, release_tag)) {
