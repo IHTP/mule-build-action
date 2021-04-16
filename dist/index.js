@@ -8347,18 +8347,17 @@ const maven = __nccwpck_require__(1959);
 
 async function main() {
   const release_tag=core.getInput('release-tag');
-  const test_args = JSON.parse(core.getInput('test-args'));
-
   if (!release_tag) return;
 
-
-  const GITHUB_TOKEN = process.env.github_token;
+  const GITHUB_TOKEN = core.getInput('github-token');
+  const test_args = JSON.parse(core.getInput('test-args'));
   const MULESOFT_NEXUS_USER = process.env.mulesoft_nexus_user;
   const MULESOFT_NEXUS_PASSWORD = process.env.mulesoft_nexus_password;
-
-
   const octokit = github.getOctokit(GITHUB_TOKEN);
   const { context = {} } = github;
+
+  core.info('nexus user: ' + mulesoft_nexus_user);
+  core.info('nexus pw: ' + mulesoft_nexus_password);
 
   try {
     if (await releaseExists(octokit, context, release_tag)) {

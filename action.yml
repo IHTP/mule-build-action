@@ -3,6 +3,9 @@ description: 'Central script to build mule projects'
 author: 'Faisal Khanani'
 
 inputs:
+  github-token:
+    description: 'GitHub token'
+    required: true
   release-tag:
     description: 'release number to be build'
     required: true
