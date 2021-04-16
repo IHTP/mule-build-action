@@ -3,14 +3,19 @@ description: 'Central script to build mule projects'
 author: 'Faisal Khanani'
 
 inputs:
-  GITHUB_TOKEN:
+  release-tag:
+    description: 'release number to be build'
+    required: true
+  github-token:
     description: 'GitHub token'
     required: true
-buildArgs:
-    description: 'Json object'
+  mulesoft-nexus-user:
+    description: 'Enterprise repo user'
     required: false
-    default: "{}"    
-testArgs:
+  mulesoft-nexus-password:
+    description: 'Enterprise repo password'
+    required: false
+  test-args:
     description: 'Json object'
     required: false
     default: "{}"    

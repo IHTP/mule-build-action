@@ -46,15 +46,15 @@ function generateMavenSettings(nexusUser, nexusPw) {
     writeSettings(templateXml);
 }
 
-async function build(testArgs, mavenSettings) {
+async function build(test_args, nexusUser, nexusPw) {
     console.log("Building project artifact ...");
 
-    if (mavenSettings)
-        generateMavenSettings(mavenSettings);
+    if (nexusUser && nexusPw)
+        generateMavenSettings(nexusUser, nexusPw);
 
     var build_command = 'mvn -B package --file pom.xml ';
     if (testArgs) {
-        for (const key in testArgs) {
+        for (const key in test_args) {
             build_command += "-D" + key + "=" + testArgs[key] + " "
         }
     }
