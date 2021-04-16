@@ -8488,9 +8488,9 @@ async function build(test_args, nexusUser, nexusPw) {
         generateMavenSettings(nexusUser, nexusPw);
 
     var build_command = 'mvn -B package --file pom.xml ';
-    if (testArgs) {
+    if (test_args) {
         for (const key in test_args) {
-            build_command += "-D" + key + "=" + testArgs[key] + " "
+            build_command += "-D" + key + "=" + test_args[key] + " "
         }
     }
     const build = await exec(build_command);
