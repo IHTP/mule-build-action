@@ -8346,13 +8346,16 @@ const exec = util.promisify(cp.exec);
 const maven = __nccwpck_require__(1959);
 
 async function main() {
-  const GITHUB_TOKEN = core.getInput('github-token');
-  const MULESOFT_NEXUS_USER = core.getInput('mulesoft-nexus-user');
-  const MULESOFT_NEXUS_PASSWORD = core.getInput('mulesoft-nexus-password');
   const release_tag=core.getInput('release-tag');
   const test_args = JSON.parse(core.getInput('test-args'));
 
   if (!release_tag) return;
+
+
+  const GITHUB_TOKEN = process.env.github_token;
+  const MULESOFT_NEXUS_USER = process.env.mulesoft_nexus_user;
+  const MULESOFT_NEXUS_PASSWORD = process.env.mulesoft_nexus_password;
+
 
   const octokit = github.getOctokit(GITHUB_TOKEN);
   const { context = {} } = github;
