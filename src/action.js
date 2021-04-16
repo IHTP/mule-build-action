@@ -8,6 +8,8 @@ const maven = require('./maven');
 
 async function main() {
   const GITHUB_TOKEN = core.getInput('GITHUB_TOKEN');
+  const MULESOFT_NEXUS_USER = core.getInput('MULESOFT_NEXUS_USER');
+  const MULESOFT_NEXUS_PASSWORD = core.getInput('MULESOFT_NEXUS_PASSWORD');
   const buildArgs = JSON.parse(core.getInput('buildArgs'));
   const testArgs = JSON.parse(core.getInput('testArgs'));
 
@@ -21,7 +23,7 @@ async function main() {
       core.setFailed("Cancelling the subsequent step(s). " + buildArgs.release_tag + " already exists!")
       return;
     }
-    if (await maven.build(testArgs, buildArgs.mavenSettings)) {
+    if (await maven.build(testArgs, MULESOFT_NEXUS_USER, MULESOFT_NEXUS_PASSWORD)) {
       await createRelease(octokit, context, buildArgs.release_tag);
     }
     console.log("action executed successfully.");
